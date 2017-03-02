@@ -1,6 +1,8 @@
 const results = document.getElementById('results')
+const winners = document.getElementById('winners')
 const form = document.getElementById('members')
 const textarea = document.getElementById('names')
+let partners
 
 function shuffle(names) {
   let totalNames = names.length
@@ -16,29 +18,46 @@ function shuffle(names) {
   return names;
 }
 
-form.addEventListener('submit', function(event) {
-  event.preventDefault()
-
-  let names = shuffle(textarea.value.split(', '))
-
-  let namesHTML = names.map(function(name, index) {
+function renderCards() {
+  let namesHTML = partners.map(function(name, index) {
     return `
-      <div class="col-md-2 card">
+      <div class="col-md-2 card" data-id="${index}">
         <h1>${index + 1}</h1>
-        <h2 class="hidden">${name}</h2>
+        <h5 class="hidden">${name}</h5>
       </div>
     `
   })
 
   results.innerHTML = namesHTML.join('')
 
+  addListenersToCards()
+}
+
+function addListenersToCards() {
   document.querySelectorAll('.card').forEach(function(name) {
     name.addEventListener('click', function(event) {
-      let number = event.currentTarget.children[0]
-      let person = event.currentTarget.children[1]
+      let winner = event.currentTarget
+      let number = winner.children[0]
+      let person = winner.children[1]
 
       number.style.display = 'none'
       person.className = ''
+
+      winner.style.backgroundColor = '#CB0D0F'
+      winner.style.color = 'white'
+      winners.appendChild(winner)
+      partners.splice(winner.dataset['id'], 1)
+
+      renderCards()
     })
   })
+}
+
+form.addEventListener('submit', function(event) {
+  event.preventDefault()
+
+  winners.innerHTML = ''
+  partners = shuffle(textarea.value.split(', '))
+
+  renderCards()
 })
